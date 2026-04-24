@@ -1,0 +1,56 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Karla", system-ui, sans-serif;
+  --font-display: "Rajdhani", system-ui, sans-serif;
+
+  --color-base:     oklch(10.5% 0.024 264);
+  --color-card:     oklch(13.5% 0.026 264);
+  --color-elevated: oklch(17%   0.028 264);
+  --color-border:   oklch(22%   0.022 264);
+
+  --color-accent:       oklch(57% 0.19 264);
+  --color-accent-hover: oklch(63% 0.19 264);
+
+  --color-gold:    oklch(73% 0.155 68);
+  --color-success: oklch(65% 0.17  162);
+  --color-danger:  oklch(58% 0.22  28);
+  --color-warn:    oklch(68% 0.16  55);
+
+  --color-text:  oklch(90% 0.012 264);
+  --color-muted: oklch(52% 0.018 264);
+  --color-faint: oklch(36% 0.014 264);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-base);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: oklch(25% 0.02 264); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: oklch(32% 0.02 264); }
+
+input, select, textarea { font-family: var(--font-sans); }
+
+::selection { background: oklch(57% 0.19 264 / 0.35); }
