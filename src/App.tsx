@@ -5,7 +5,9 @@ import Tasks from './pages/Tasks'
 import BossPage from './pages/BossPage'
 import SkillTree from './pages/SkillTree'
 import AchievementsPage from './pages/AchievementsPage'
+import GearPage from './pages/GearPage'
 import NotificationToast from './components/ui/NotificationToast'
+import LootCrateModal from './components/ui/LootCrateModal'
 import OnboardingModal from './pages/OnboardingModal'
 import { useGameStore } from './stores/gameStore'
 
@@ -15,6 +17,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <NotificationToast />
+      <LootCrateModal />
       {!onboardingDone && <OnboardingModal />}
       <Routes>
         <Route element={<Layout />}>
@@ -23,6 +26,7 @@ export default function App() {
           <Route path="/boss" element={<BossPage />} />
           <Route path="/skills" element={<SkillTree />} />
           <Route path="/achievements" element={<AchievementsPage />} />
+          <Route path="/gear" element={<GearPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

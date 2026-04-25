@@ -7,6 +7,7 @@ const NAV = [
   { to: '/tasks',       label: 'Tasks',        icon: '✓' },
   { to: '/boss',        label: 'Boss',         icon: '◈' },
   { to: '/skills',      label: 'Skills',       icon: '◉' },
+  { to: '/gear',        label: 'Gear',         icon: '⚔' },
   { to: '/achievements',label: 'Achievements', icon: '★' },
 ]
 

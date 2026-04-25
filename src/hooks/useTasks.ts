@@ -5,7 +5,8 @@ import { useGameStore, getSkillBonuses } from '../stores/gameStore'
 import { calcXpReward } from '../lib/xp'
 import { ACHIEVEMENTS, type AchievementStats } from '../lib/achievements'
 import { damageFromPriority, getWeekKey } from '../lib/boss'
-import { isToday } from 'date-fns'
+import { getEquippedBonuses } from '../lib/gear'
+import { isToday, startOfDay } from 'date-fns'
 
 export function useTasks() {
   const tasks = useLiveQuery(() => db.tasks.orderBy('createdAt').reverse().toArray(), [])
@@ -35,6 +36,7 @@ export async function completeTask(task: Task) {
 
   const store = useGameStore.getState()
   const bonuses = getSkillBonuses(store.skillPointsSpent)
+  const gearBonuses = getEquippedBonuses(store.equippedGear)
 
   let xp = calcXpReward(task.priority, bonuses, task.dueDate)
 
@@ -52,6 +54,11 @@ export async function completeTask(task: Task) {
     xp = Math.round(xp * (1 + bonuses.tactician * 0.15))
   }
 
+  // Gear XP bonus
+  if (gearBonuses.xpBonus > 0) {
+    xp = Math.round(xp * (1 + gearBonuses.xpBonus))
+  }
+
   store.addNotification({ type: 'xp', message: `+${xp} XP`, xpAmount: xp, icon: '⚡' })
   store.addXp(xp)
   store.updateStreak()
@@ -66,6 +73,10 @@ export async function completeTask(task: Task) {
     if (task.tags.length > 0) {
       const tacNode3 = store.skillPointsSpent['tac_3'] ?? 0
       if (tacNode3 > 0) dmg = Math.round(dmg * 1.5)
+    }
+    // Gear boss damage bonus
+    if (gearBonuses.bossDamage > 0) {
+      dmg = Math.round(dmg * (1 + gearBonuses.bossDamage))
     }
     const newHp = Math.max(0, boss.currentHp - dmg)
     const defeated = newHp === 0
@@ -86,6 +97,15 @@ export async function completeTask(task: Task) {
     })
   } else {
     await db.dailyLogs.add({ id: uuid(), date: today, tasksCompleted: 1, xpEarned: xp })
+  }
+
+  // Loot crate unlock: check if all of today's tasks are now complete
+  const todayStart = startOfDay(new Date()).toISOString()
+  const todayTasks = await db.tasks.filter(t => t.createdAt >= todayStart).toArray()
+  const allDone = todayTasks.length > 0 && todayTasks.every(t => !!t.completedAt)
+  if (allDone && store.lastLootCrateDate !== today) {
+    store.markLootCrateAvailable()
+    store.addNotification({ type: 'achievement', message: '📦 Loot Crate unlocked! All tasks complete!', icon: '📦' })
   }
 
   await checkAchievements()

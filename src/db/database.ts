@@ -1,4 +1,5 @@
 import Dexie, { type EntityTable } from 'dexie'
+import type { GearItem } from '../lib/gear'
 
 export type Priority = 'low' | 'medium' | 'high' | 'epic'
 
@@ -38,11 +39,18 @@ export interface BossRecord {
   defeatBonus: number
 }
 
+export interface InventoryItem {
+  id: string
+  gearData: GearItem
+  obtainedAt: string
+}
+
 const db = new Dexie('ClaudeOrganizer') as Dexie & {
   tasks: EntityTable<Task, 'id'>
   achievements: EntityTable<Achievement, 'id'>
   dailyLogs: EntityTable<DailyLog, 'id'>
   bossRecords: EntityTable<BossRecord, 'id'>
+  inventoryItems: EntityTable<InventoryItem, 'id'>
 }
 
 db.version(1).stores({
@@ -50,6 +58,14 @@ db.version(1).stores({
   achievements: 'id, key, unlockedAt',
   dailyLogs: 'id, date',
   bossRecords: 'id, weekKey',
+})
+
+db.version(2).stores({
+  tasks: 'id, completedAt, dueDate, priority, createdAt',
+  achievements: 'id, key, unlockedAt',
+  dailyLogs: 'id, date',
+  bossRecords: 'id, weekKey',
+  inventoryItems: 'id, obtainedAt',
 })
 
 export default db

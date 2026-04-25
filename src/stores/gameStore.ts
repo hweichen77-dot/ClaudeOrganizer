@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { SkillPoints } from '../lib/skillTree'
 import { getTreeBonus } from '../lib/skillTree'
+import type { GearItem, GearSlot } from '../lib/gear'
 
 export interface Notification {
   id: string
@@ -26,6 +27,9 @@ interface GameState {
   notifications: Notification[]
   epicTasksDoneToday: number
   berserkerUsedToday: boolean
+  equippedGear: Partial<Record<GearSlot, GearItem>>
+  lootCrateAvailable: boolean
+  lastLootCrateDate: string | null
 
   addXp: (amount: number) => void
   spendSkillPoint: (nodeId: string) => void
@@ -38,6 +42,10 @@ interface GameState {
   addNotification: (n: Omit<Notification, 'id'>) => void
   dismissNotification: (id: string) => void
   incrementEpicToday: () => void
+  equipGear: (item: GearItem) => void
+  unequipGear: (slot: GearSlot) => void
+  markLootCrateAvailable: () => void
+  claimLootCrate: () => void
 }
 
 function todayStr() {
@@ -61,6 +69,9 @@ export const useGameStore = create<GameState>()(
       notifications: [],
       epicTasksDoneToday: 0,
       berserkerUsedToday: false,
+      equippedGear: {},
+      lootCrateAvailable: false,
+      lastLootCrateDate: null,
 
       addXp: (amount) => {
         set(s => {
@@ -137,6 +148,23 @@ export const useGameStore = create<GameState>()(
       })),
 
       incrementEpicToday: () => set(s => ({ epicTasksDoneToday: s.epicTasksDoneToday + 1 })),
+
+      equipGear: (item) => set(s => ({
+        equippedGear: { ...s.equippedGear, [item.slot]: item },
+      })),
+
+      unequipGear: (slot) => set(s => {
+        const next = { ...s.equippedGear }
+        delete next[slot]
+        return { equippedGear: next }
+      }),
+
+      markLootCrateAvailable: () => set({
+        lootCrateAvailable: true,
+        lastLootCrateDate: todayStr(),
+      }),
+
+      claimLootCrate: () => set({ lootCrateAvailable: false }),
     }),
     { name: 'claude-organizer-game' }
   )
