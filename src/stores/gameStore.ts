@@ -29,6 +29,7 @@ interface GameState {
   berserkerUsedToday: boolean
   equippedGear: Partial<Record<GearSlot, GearItem>>
   lootCrateAvailable: boolean
+  lootCratesRemainingToday: number
   lastLootCrateDate: string | null
 
   addXp: (amount: number) => void
@@ -71,6 +72,7 @@ export const useGameStore = create<GameState>()(
       berserkerUsedToday: false,
       equippedGear: {},
       lootCrateAvailable: false,
+      lootCratesRemainingToday: 0,
       lastLootCrateDate: null,
 
       addXp: (amount) => {
@@ -133,7 +135,7 @@ export const useGameStore = create<GameState>()(
 
       useStreakShield: () => set(_s => ({ streakShieldAvailable: false, streakShieldUsedThisWeek: true })),
 
-      resetDailyState: () => set({ epicTasksDoneToday: 0, berserkerUsedToday: false }),
+      resetDailyState: () => set({ epicTasksDoneToday: 0, berserkerUsedToday: false, lootCratesRemainingToday: 0, lootCrateAvailable: false }),
 
       setDailyGoal: (goal) => set({ dailyGoal: goal }),
       setUsername: (name) => set({ username: name }),
@@ -161,10 +163,14 @@ export const useGameStore = create<GameState>()(
 
       markLootCrateAvailable: () => set({
         lootCrateAvailable: true,
+        lootCratesRemainingToday: 2,
         lastLootCrateDate: todayStr(),
       }),
 
-      claimLootCrate: () => set({ lootCrateAvailable: false }),
+      claimLootCrate: () => set(s => {
+        const remaining = Math.max(0, s.lootCratesRemainingToday - 1)
+        return { lootCratesRemainingToday: remaining, lootCrateAvailable: remaining > 0 }
+      }),
     }),
     { name: 'claude-organizer-game' }
   )
